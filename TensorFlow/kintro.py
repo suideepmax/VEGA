@@ -2,6 +2,7 @@ import gzip
 import numpy as np
 import tensorflow as tf
 from typing import Tuple
+from keras.utils import register_keras_serializable
 
 def read_images(path: str, image_size: int, num_items: int) -> np.ndarray:
   with gzip.open(path, 'rb') as file:
