@@ -3,6 +3,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '-1' # Suppress TensorFlow logging
 import tensorflow as tf
 import numpy as np
 import gzip
+from typing import Tuple
 
 import random  
 import matplotlib.pyplot as plt
@@ -20,6 +21,7 @@ labels_map = {
   9: 'Ankle Boot',
 }
 
+# Load the Fashion MNIST dataset directly from TensorFlow
 (training_images, training_labels), (test_images, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
 
 
@@ -92,3 +94,39 @@ train_dataset.as_numpy_iterator().next()[0] # Get the first image from the train
 batch_size = 64 
 train_dataset = train_dataset.batch(batch_size).shuffle(500)
 test_dataset = test_dataset.batch(batch_size).shuffle(500)
+
+
+# the following class defines a neural network model by subclassing tf.keras.Model
+# subclassing tf.keras.Model gives you more flexibility and control over your model compared to using tf.keras.Sequential
+# you can define your own forward pass by overriding the call method
+# you can also define custom layers and loss functions if needed
+# a neural network is a series of layers that process input data to make predictions or classifications
+# each layer consists of nodes (or neurons) that apply a transformation to the input data
+# the first layer is a Flatten layer that converts the 2D input images (28x28 pixels) into 1D vectors (784 pixels)
+# the next two layers are Dense layers with 128 and 20 units respectively, using the ReLU activation function
+# the final layer is another Dense layer with 10 units, corresponding to the 10 classes
+# the hidden layers use the ReLU activation function, which introduces non-linearity to the model
+# the output layer does not use an activation function because it will be used with a loss function
+# the loss function will apply the softmax activation internally
+# softmax converts the output logits into probabilities for each class
+# a logit is the raw output of a neural network layer before applying an activation function
+class NeuralNetwork(tf.keras.Model): # Define a neural network model by subclassing tf.keras.Model
+  def __init__(self):
+    super(NeuralNetwork, self).__init__()
+    self.sequence = tf.keras.Sequential([ # Define the layers of the model using tf.keras.Sequential
+      tf.keras.layers.Flatten(input_shape=(28, 28)), # Flatten the input images from 28x28 to a 784-dimensional vector
+      tf.keras.layers.Dense(128, activation='relu'), # First dense layer with 128 units and ReLU activation
+      tf.keras.layers.Dense(20, activation='relu'), # Second dense layer with 20 units and ReLU activation
+      tf.keras.layers.Dense(10) # Output layer with 10 units (one for each class)
+    ])
+
+  def call(self, x: tf.Tensor) -> tf.Tensor: # Define the forward pass of the model
+    # input x is a batch of images with shape (batch_size, 28, 28)
+    y_prime = self.sequence(x) # Pass the input through the layers
+    return y_prime # Return the output logits
+
+# Instantiate and build the model
+# Building the model involves specifying the input shape, which allows TensorFlow to initialize the weights and biases of the layers 
+model = NeuralNetwork() # Instantiate the model
+model.build((1, 28, 28)) # Build the model by specifying the input shape
+model.summary() # Print a summary of the model architecture
