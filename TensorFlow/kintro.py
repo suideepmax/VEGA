@@ -16,27 +16,25 @@ def read_labels(path: str, num_items: int) -> np.ndarray:
   return data
 
 def get_data(batch_size: int) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
-  image_size = 28
-  num_train = 60000
-  num_test = 10000
+    image_size = 28
 
-  training_images = read_images('data/FashionMNIST/raw/train-images-idx3-ubyte.gz', image_size, num_train)
-  test_images = read_images('data/FashionMNIST/raw/t10k-images-idx3-ubyte.gz', image_size, num_test)
-  training_labels = read_labels('data/FashionMNIST/raw/train-labels-idx1-ubyte.gz', num_train)
-  test_labels = read_labels('data/FashionMNIST/raw/t10k-labels-idx1-ubyte.gz', num_test)
+    # Use TensorFlow's built-in loader (automatically downloads data if missing)
+    (training_images, training_labels), (test_images, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
 
-  # (training_images, training_labels), (test_images, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
+    # Normalize pixel values to [0, 1]
+    training_images = training_images.astype("float32") / 255.0
+    test_images = test_images.astype("float32") / 255.0
 
-  train_dataset = tf.data.Dataset.from_tensor_slices((training_images, training_labels))
-  test_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
+    # Create datasets
+    train_dataset = tf.data.Dataset.from_tensor_slices((training_images, training_labels))
+    test_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
 
-  train_dataset = train_dataset.map(lambda image, label: (float(image) / 255.0, label))
-  test_dataset = test_dataset.map(lambda image, label: (float(image) / 255.0, label))
+    # Shuffle + batch
+    train_dataset = train_dataset.shuffle(500).batch(batch_size)
+    test_dataset = test_dataset.batch(batch_size)
 
-  train_dataset = train_dataset.batch(batch_size).shuffle(500)
-  test_dataset = test_dataset.batch(batch_size).shuffle(500)
+    return (train_dataset, test_dataset)
 
-  return (train_dataset, test_dataset)
 
 
 class NeuralNetwork(tf.keras.Model):
