@@ -37,9 +37,9 @@ def get_data(batch_size: int) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     return (train_dataset, test_dataset)
 
 
-@tf.keras.utils.register_keras_serializable()
+@register_keras_serializable()
 class NeuralNetwork(tf.keras.Model):
-  def __init__(self):
+  def __init__(self, trainable=True, dtype=None, **kwargs):
     super(NeuralNetwork, self).__init__()
     self.sequence = tf.keras.Sequential([
       tf.keras.layers.Flatten(input_shape=(28, 28)),
