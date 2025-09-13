@@ -37,7 +37,7 @@ def get_data(batch_size: int) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     return (train_dataset, test_dataset)
 
 
-@tf.keras.saving.register_keras_serializable()
+@tf.keras.utils.register_keras_serializable()
 class NeuralNetwork(tf.keras.Model):
   def __init__(self):
     super(NeuralNetwork, self).__init__()
